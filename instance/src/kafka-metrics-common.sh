@@ -79,6 +79,7 @@ wait_for_endpoint() {
     while [  $MAX_WAIT -gt 0 ]; do
          echo "$URL $MAX_WAIT";
          RESPONSE_STATUS=$(curl --stderr /dev/null -X GET -i "$URL" | head -1 | cut -d' ' -f2)
+         echo "Response Status: $RESPONSE_STATUS"
          if [ ! -z $RESPONSE_STATUS ] ; then
             if [ $RESPONSE_STATUS == $EXPECTED ]; then
                 return 1

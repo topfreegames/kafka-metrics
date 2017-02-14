@@ -28,7 +28,7 @@ start_influxdb() {
         wait_for_endpoint "$INFLUXDB_URL/ping?wait_for_leader=1s" 204 30
         if [ $? == 1 ]; then
             echo "influxdb endpoind check successful"
-            "$INSTALL_DIR/golang/bin/influx" -execute "CREATE DATABASE IF NOT EXISTS metrics"
+            "$INSTALL_DIR/golang/bin/influx" -execute "CREATE DATABASE metrics"
             if [ ! -z $GRAFANA_URL ]; then
                 echo "configuring 'Kafka Metrics InfluxDB' datasource -> $INFLUXDB_URL in the provided Grafana instance @ $GRAFANA_URL"
                 curl "$GRAFANA_URL/api/datasources" -s -X POST -H 'Content-Type: application/json;charset=UTF-8' --data-binary '{"name": "Kafka Metrics InfluxDB", "type": "influxdb", "access": "direct", "url": "'$INFLUXDB_URL'", "password": "none", "user": "kafka-metrics", "database": "metrics", "isDefault": true}'

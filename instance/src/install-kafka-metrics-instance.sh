@@ -27,36 +27,5 @@ install_grafana() {
     grunt --force
 }
 
-ensure_golang() {
-    go version
-    if [ ! $? -eq 0 ]; then
-        case "$OSTYPE" in
-          darwin*) URL="https://storage.googleapis.com/golang/go1.5.2.darwin-amd64.tar.gz" ;;
-          linux*) URL="https://storage.googleapis.com/golang/go1.5.2.linux-amd64.tar.gz" ;;
-          bsd*) URL="https://storage.googleapis.com/golang/go1.5.2.freebsd-amd64.tar.gz" ;;
-          *) URL="" ;;
-        esac
-        if [ ! -z "$URL" ]; then
-            GOPACKAGE="$DOWNLOAD_DIR/$(basename $URL)"
-            if [ ! -f "$GOPACKAGE" ]; then
-                download $URL "$GOPACKAGE"
-                tar -C /usr/local -xzf "$GOPACKAGE"
-            fi
-            export PATH=$PATH:/usr/local/go/bin
-#            TODO echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.profile
-#            TODO echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bash_profile
-        fi
-        go version
-        if [ ! $? -eq 0 ]; then
-            echo "Failed to install GoLang on your system `$OSTYPE` - please try manually";
-            exit 1;
-        fi
-    fi
-    if [ ! -d $DEST_DIR ]; then
-        mkdir -p $DEST_DIR
-    fi
-}
-
-ensure_golang
 install_influxdb
 install_grafana
