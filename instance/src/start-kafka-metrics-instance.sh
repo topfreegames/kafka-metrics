@@ -41,28 +41,4 @@ start_influxdb() {
     fi
 }
 
-start_grafana() {
-    export GRAFANA_CONFIG="$CONFIG_DIR/grafana.ini"
-    if [ -f "$GRAFANA_CONFIG" ]; then
-        export GF_LOG_MODE="file"
-        export GF_PATHS_LOGS="$LOG_DIR/grafana"
-        mkdir -p "$GF_PATHS_LOGS"
-        mkdir -p "$DATA_DIR/grafana/dashboards"
-        echo "starting grafana with config $GRAFANA_CONFIG"
-        cd "$INSTALL_DIR/golang/src/github.com/grafana/grafana"
-        start "grafana" "./bin/grafana-server" "-config" $GRAFANA_CONFIG
-        GRAFANA_URL="http://admin:admin@localhost:3000"
-        wait_for_endpoint "$GRAFANA_URL/api/login/ping" 401 30
-        if [ $? == 1 ]; then
-            echo "grafana endpoind check successful"
-        else
-            stop grafana
-        fi
-    fi
-}
-
-if [ -z "$GRAFANA_URL" ]; then
-    start_grafana
-fi
 start_influxdb
-
