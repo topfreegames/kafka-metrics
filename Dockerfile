@@ -59,7 +59,6 @@ RUN curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-
 COPY . /kafka-metrics
 WORKDIR /kafka-metrics
 RUN ./gradlew build
-RUN ./gradlew :discovery:compileJava
 RUN ./gradlew :influxdb-loader:build
 
 ENTRYPOINT ["./start_influxdb_loader.sh"]
