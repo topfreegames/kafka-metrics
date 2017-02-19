@@ -1,5 +1,8 @@
 FROM openjdk:latest
 
+ARG INFLUXDB_USERNAME=root
+ARG INFLUXDB_PASSWORD=root
+
 RUN apt-get update
 RUN apt-get upgrade -y
 RUN apt-get install -y npm
@@ -60,5 +63,8 @@ COPY . /kafka-metrics
 WORKDIR /kafka-metrics
 RUN ./gradlew build
 RUN ./gradlew :influxdb-loader:build
+
+ENV INFLUXDB_USERNAME $INFLUXDB_USERNAME
+ENV INFLUXDB_PASSWORD $INFLUXDB_PASSWORD
 
 ENTRYPOINT ["./start_influxdb_loader.sh"]

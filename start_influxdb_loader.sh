@@ -8,5 +8,4 @@ else
   echo 'Starting InfluxDB Loader'
   echo "influxdb.url=http://$1:8086" >> influxdb-loader/conf/local-jmx.properties
   ./influxdb-loader/build/scripts/influxdb-loader influxdb-loader/conf/local-jmx.properties
-  cp instance/.data/grafana/dashboards/my-kafka-cluster.json dashboard.json
 fi

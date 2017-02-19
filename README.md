@@ -9,12 +9,23 @@ It assumes the following scenario:
  - Kafka has its JMX enabled on port 19092
  - Kafka has its hostname set to "kafka"
  - Influx daemon is running on machine with ip IP and port 8086
- - Grafana in running and getting data from InfluxDB
+ - Grafana is running and getting data from InfluxDB
 
 ## Usage
  - On the machine running Docker with Kafka and Zookeeper, run on the root of this project (kafka-metrics) to build the image:
   ```shell
-  docker build -t influxloader .
+  docker build --build-arg INFLUXDB_USERNAME=root --build-arg INFLUXDB_PASSWORD=root -t influxloader .
+  ```
+  Pass your InfluxDB username and password in build-arg
+
+ - Before running Kafka, define the following env variables:
+  ```shell
+  JMX_PORT=19092
+  KAFKA_JMX_OPTS="-Dcom.sun.management.jmxremote=true
+     -Dcom.sun.management.jmxremote.authenticate=false
+     -Dcom.sun.management.jmxremote.ssl=false
+     -Djava.rmi.server.hostname= <host machine IP>
+     -Djava.net.preferIPv4Stack=true -Dcom.sun.management.jmxremote.rmi.port=19092"
   ```
 
  - Ensure the kafka container has hostname as "kafka" for the internal network.
@@ -38,4 +49,4 @@ It assumes the following scenario:
   ```
    Where IP is the ip where Influx daemon in running
 
- - Finally, import ./kafka-metrics/dashboard.json on Grafana (probably on localhost:3000)
+ - On Grafana (localhost:3000), import your own dashboard or use the file dashboard.json to see the metrics
