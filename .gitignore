@@ -6,8 +6,4 @@
 *.swp
 build/
 classes/
-/instance/.install
-/instance/.download
-/instance/.data
-/instance/.logs
-/instance/.pid
+.data/
