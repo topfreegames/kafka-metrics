@@ -52,7 +52,7 @@
     "panels" : [ {
       "title" : "Max Lag",
       "span" : 1,
-      "id" : 4,
+      "id" : 0,
       "datasource" : "Kafka Metrics InfluxDB",
       "type" : "singlestat",
       "renderer" : "flot",
@@ -154,7 +154,7 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT \"MeanRate\" FROM \"UncleanLeaderElectionsPerSec\" WHERE $timeFilter GROUP BY \"topic\" fill(null)",
+        "query" : "SELECT \"OneMinuteRate\" FROM \"UncleanLeaderElectionsPerSec\" WHERE $timeFilter GROUP BY \"topic\" fill(null)",
         "alias" : "$tag_topic",
         "rawQuery" : true
       } ],
@@ -198,10 +198,10 @@
         "threshold2" : null,
         "threshold2Color" : "rgba(234, 112, 112, 0.22)"
       }
-    }, { 
-      "title" : "Unclean Leader Election / Sec",
+    }, {
+      "title" : "Clean Leader Election / Sec",
       "span" : 5,
-      "id" : 3,
+      "id" : 1,
       "datasource" : "Kafka Metrics InfluxDB",
       "type" : "graph",
       "renderer" : "flot",
@@ -212,7 +212,7 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT \"MeanRate\" FROM \"UncleanLeaderElectionsPerSec\" WHERE $timeFilter GROUP BY \"topic\" fill(null)",
+        "query" : "SELECT \"OneMinuteRate\" FROM \"LeaderElectionRateAndTimeMs\" GROUP BY \"topic\" fill(null)",
         "alias" : "$tag_topic",
         "rawQuery" : true
       } ],
@@ -256,9 +256,8 @@
         "threshold2" : null,
         "threshold2Color" : "rgba(234, 112, 112, 0.22)"
       }
-    }
+    }     
     ]
-
   }, {
     "title" : "CLUSTER METRICS FOR 1 broker(s)",
     "showTitle" : true,
@@ -395,7 +394,7 @@
         "desc" : false
       }
     }, {
-      "title" : "Log Flush Time (98th maximum)",
+      "title" : "Network Processor Avg Idle Percent",
       "span" : 2,
       "id" : 7,
       "datasource" : "Kafka Metrics InfluxDB",
@@ -408,14 +407,14 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT max(\"98thPercentile\") as \"98thPercentile\" FROM \"LogFlushRateAndTimeMs\" WHERE \"group\" = 'kafka.log' AND $timeFilter GROUP BY time(1m), \"service\"",
+        "query" : "select \"Value\" from \"NetworkProcessorAvgIdlePercent\" where \"group\"='kafka.network' and $timeFilter",
         "alias" : "$tag_service",
         "rawQuery" : true
       } ],
       "nullPointMode" : "connected",
       "x-axis" : true,
       "y-axis" : true,
-      "y_formats" : [ "ms", "short" ],
+      "y_formats" : [ "short", "short" ],
       "lines" : true,
       "linewidth" : 1,
       "steppedLine" : false,
@@ -453,7 +452,7 @@
         "threshold2Color" : "rgba(234, 112, 112, 0.22)"
       }
     }, {
-      "title" : "Input / Sec",
+      "title" : "Bytes Input / Sec",
       "span" : 2,
       "id" : 8,
       "datasource" : "Kafka Metrics InfluxDB",
@@ -466,7 +465,7 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT sum(\"OneMinuteRate\") FROM \"BytesInPerSec\" WHERE \"group\" = 'kafka.server' AND \"topic\" =~ /^$topic$/ AND $timeFilter GROUP BY time(25s), \"service\"",
+        "query" : "SELECT sum(\"OneMinuteRate\") FROM \"BytesInPerSec\" WHERE \"group\" = 'kafka.server' AND $timeFilter GROUP BY time(25s), \"service\"",
         "alias" : "$tag_service",
         "rawQuery" : true
       } ],
@@ -524,7 +523,7 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT sum(\"OneMinuteRate\") FROM \"BytesOutPerSec\" WHERE \"group\" = 'kafka.server' AND \"topic\" =~ /^$topic$/ AND $timeFilter GROUP BY time(25s), \"service\"",
+        "query" : "SELECT sum(\"OneMinuteRate\") FROM \"BytesOutPerSec\" WHERE \"group\" = 'kafka.server' AND $timeFilter GROUP BY time(25s), \"service\"",
         "alias" : "$tag_service",
         "rawQuery" : true
       } ],
@@ -607,7 +606,7 @@
     "showTitle" : true,
     "height" : "250px",
     "editable" : true,
-    "collapse" : true,
+    "collapse" : false,
     "panels" : [ {
       "title" : "Num.delayed requests",
       "span" : 4,
@@ -622,10 +621,15 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT max(\"Value\"), median(\"Value\"), min(\"Value\") FROM \"NumDelayedRequests\" WHERE \"service\" = 'broker-1' AND $timeFilter GROUP BY time($interval) fill(null)",
+        "query" : "SELECT * FROM \"queue-size\" WHERE \"service\" = 'broker-0' AND $timeFilter AND \"group\" = 'kafka.server' AND \"type\" = 'Fetch'",
         "alias" : "$col",
         "rawQuery" : true
-      } ],
+      }, {
+        "refId" : "B",
+        "query" : "SELECT * FROM \"queue-size\" WHERE \"service\" = 'broker-0' AND $timeFilter AND \"group\" = 'kafka.server' AND \"type\" = 'Produce'",
+        "alias" : "$col",
+        "rawQuery" : true
+      }],
       "nullPointMode" : "connected",
       "x-axis" : true,
       "y-axis" : true,
@@ -667,7 +671,7 @@
         "threshold2Color" : "rgba(234, 112, 112, 0.22)"
       }
     }, {
-      "title" : "Log Flush Time (mean)",
+      "title" : "Max Buffer Utilization (percent)",
       "span" : 4,
       "id" : 12,
       "datasource" : "Kafka Metrics InfluxDB",
@@ -680,24 +684,14 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT sum(\"999thPercentile\") as \"999thPercentile\" FROM \"LogFlushRateAndTimeMs\" WHERE \"group\" = 'kafka.log' AND \"service\" = 'broker-0'AND $timeFilter GROUP BY time(30s)",
+        "query" : "SELECT \"Value\" FROM \"max-buffer-utilization-percent\" WHERE \"group\" = 'kafka.log' AND \"service\" = 'broker-0'",
         "alias" : "$col",
         "rawQuery" : true
-      }, {
-        "refId" : "B",
-        "query" : "SELECT sum(\"99thPercentile\") as \"99thPercentile\" FROM \"LogFlushRateAndTimeMs\" WHERE \"group\" = 'kafka.log' AND \"service\" = 'broker-0'AND $timeFilter GROUP BY time(30s)",
-        "alias" : "$col",
-        "rawQuery" : true
-      }, {
-        "refId" : "C",
-        "query" : "SELECT sum(\"95thPercentile\") as \"95thPercentile\" FROM \"LogFlushRateAndTimeMs\" WHERE \"group\" = 'kafka.log' AND \"service\" = 'broker-0'AND $timeFilter GROUP BY time(30s)",
-        "alias" : "$col",
-        "rawQuery" : true
-      } ],
+      }],
       "nullPointMode" : "connected",
       "x-axis" : true,
       "y-axis" : true,
-      "y_formats" : [ "ms", "short" ],
+      "y_formats" : [ "short", "short" ],
       "lines" : true,
       "linewidth" : 1,
       "steppedLine" : false,
@@ -748,18 +742,18 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT sum(\"OneMinuteRate\") * -1 FROM \"BytesOutPerSec\" WHERE \"topic\" =~ /^$topic$/ AND \"service\" = 'broker-0' AND $timeFilter GROUP BY time($interval) fill(null)",
+        "query" : "SELECT sum(\"OneMinuteRate\") * -1 FROM BytesOutPerSec WHERE \"service\" = 'broker-0' AND $timeFilter GROUP BY time(25s) fill(0)",
         "alias" : "Output",
         "rawQuery" : true
       }, {
         "refId" : "B",
-        "query" : "SELECT sum(\"OneMinuteRate\") FROM \"BytesInPerSec\" WHERE \"topic\" =~ /^$topic$/ AND \"service\" = 'broker-0' AND $timeFilter GROUP BY time($interval) fill(null)",
+        "query" : "SELECT sum(\"OneMinuteRate\") FROM BytesInPerSec WHERE \"service\" = 'broker-0' AND $timeFilter GROUP BY time(25s) fill(0)",
         "alias" : "Input",
         "rawQuery" : true
       } ],
       "nullPointMode" : "connected",
       "x-axis" : true,
-      "y-axis" : false,
+      "y-axis" : true,
       "y_formats" : [ "bytes", "short" ],
       "lines" : true,
       "linewidth" : 1,
