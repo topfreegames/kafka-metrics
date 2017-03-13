@@ -41,7 +41,7 @@ INFLUXDB_URL="http://localhost:8086"
 wait_for_endpoint "$INFLUXDB_URL/ping" 204 30
 if [ $? == 1 ]; then
     echo "influxdb endpoind check successful"
-    "$INSTALL_DIR/golang/bin/influx" -execute "CREATE DATABASE IF NOT EXISTS metrics"
+    echo -e "Creating database...\n$(curl -XPOST "$INFLUXDB_URL/query" --data-urlencode 'q=CREATE DATABASE "metrics"')"
 else
     echo "influxdb endpoint check failed"
     exit 2;
