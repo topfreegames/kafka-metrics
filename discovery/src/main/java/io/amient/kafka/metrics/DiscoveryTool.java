@@ -240,19 +240,7 @@ public class DiscoveryTool extends ZkClient implements Closeable {
             .put("transform", "timeseries_aggregations")
             .put("showHeader", false);
 
-        //Total Maximum Log Flush Time
-        ObjectNode graph5 = dash.newGraph(clusterRow, "Log Flush Time (98th maximum)", 2, false)
-                .put("linewidth",1).put("points", false).put("fill",0);
-        graph5.replace("y_formats", dash.newArray("ms", "short"));
-        dash.get(graph5, "grid")
-                .put("threshold1", 6).put("threshold1Color", "rgba(236, 118, 21, 0.21)")
-                .put("threshold2", 12).put("threshold2Color", "rgba(234, 112, 112, 0.22)");
-        dash.newTarget(graph5, "$tag_service", "SELECT max(\"98thPercentile\") as \"98thPercentile\" " +
-                "FROM \"LogFlushRateAndTimeMs\" " +
-                "WHERE \"group\" = 'kafka.log' AND \"name\" = '" + name + "' AND $timeFilter " +
-                "GROUP BY time(1m), \"service\"");
-
-        ObjectNode graph2 = dash.newGraph(clusterRow, "Input / Sec", 2, false)
+        ObjectNode graph2 = dash.newGraph(clusterRow, "Input / Sec", 3, false)
                 .put("fill", 2).put("stack", true);
         graph2.replace("y_formats", dash.newArray("bytes", "short"));
         graph2.replace("tooltip", dash.newObject().put("value_type", "individual").put("shared", true));
@@ -262,7 +250,7 @@ public class DiscoveryTool extends ZkClient implements Closeable {
                 "AND $timeFilter " +
                 "GROUP BY time(" + interval_s + "s), \"service\"");
 
-        ObjectNode graph3 = dash.newGraph(clusterRow, "Output / Sec", 2, false).put("fill", 2).put("stack", true);
+        ObjectNode graph3 = dash.newGraph(clusterRow, "Output / Sec", 3, false).put("fill", 2).put("stack", true);
         graph3.replace("y_formats", dash.newArray("bytes", "short"));
         graph3.replace("tooltip", dash.newObject().put("value_type", "individual").put("shared", true));
         dash.get(graph3, "grid").put("leftMin", 0);
@@ -289,36 +277,22 @@ public class DiscoveryTool extends ZkClient implements Closeable {
                     String.format("Kafka Broker ID %s @ %s", broker.id, broker.hostPort()), 250, false);
 
             //Purgatory graph
-            ObjectNode graph6 = dash.newGraph(brokerRow, "Num.delayed requests", 4, true);
+            ObjectNode graph6 = dash.newGraph(brokerRow, "Num.delayed operations", 4, true);
             dash.newTarget(graph6, "$col",
-                    "SELECT max(\"Value\"), median(\"Value\"), min(\"Value\") FROM \"NumDelayedRequests\" " +
-                    "WHERE \"name\" = 'stag-kafka-cluster' AND \"service\" = 'broker-1' AND $timeFilter " +
+                    "SELECT max(\"Value\"), median(\"Value\"), min(\"Value\") FROM \"NumDelayedOperations\" " +
+                    "WHERE \"name\" = 'cluster' AND \"service\" = 'broker-0' AND $timeFilter " +
                     "GROUP BY time($interval) fill(null)");
 
-            //Log Flush Time graph
-            ObjectNode graph7 = dash.newGraph(brokerRow, "Log Flush Time (mean)", 4, false)
+            //Log Size graph
+            ObjectNode graph7 = dash.newGraph(brokerRow, "Log Size", 4, false)
                     .put("linewidth",1).put("points", true).put("pointradius", 1).put("fill", 0);
-            graph7.replace("y_formats", dash.newArray("ms", "short"));
+            graph7.replace("y_formats", dash.newArray("bytes", "short"));
             dash.get(graph7, "grid")
-                    .put("leftLogBase", 2)
-                    .put("threshold1", 100).put("threshold1Color", "rgba(236, 118, 21, 0.21)")
-                    .put("threshold2", 250).put("threshold2Color", "rgba(234, 112, 112, 0.22)");
-            dash.newTarget(graph7, "$col", "SELECT sum(\"999thPercentile\") as \"999thPercentile\" " +
-                    "FROM \"LogFlushRateAndTimeMs\" " +
+                    .put("leftMin", 0);
+            dash.newTarget(graph7, "$col", "SELECT \"Value\" " +
+                    "FROM \"Size\" " +
                     "WHERE \"group\" = 'kafka.log' AND \"service\" = '" +String.format("broker-%s", broker.id)+"'" +
-                    "AND \"name\" = '" + name + "' AND $timeFilter " +
-                    "GROUP BY time(30s)");
-            dash.newTarget(graph7, "$col", "SELECT sum(\"99thPercentile\") as \"99thPercentile\" " +
-                    "FROM \"LogFlushRateAndTimeMs\" " +
-                    "WHERE \"group\" = 'kafka.log' AND \"service\" = '" +String.format("broker-%s", broker.id)+"'" +
-                    "AND \"name\" = '" + name + "' AND $timeFilter " +
-                    "GROUP BY time(30s)");
-
-            dash.newTarget(graph7, "$col", "SELECT sum(\"95thPercentile\") as \"95thPercentile\" " +
-                    "FROM \"LogFlushRateAndTimeMs\" " +
-                    "WHERE \"group\" = 'kafka.log' AND \"service\" = '" +String.format("broker-%s", broker.id)+"'" +
-                    "AND \"name\" = '" + name + "' AND $timeFilter " +
-                    "GROUP BY time(30s)");
+                    "AND \"name\" = '" + name + "' AND $timeFilter");
 
             //Combined Throughput Graph
             ObjectNode graph8 = dash.newGraph(brokerRow, "Throughput", 4, true)
@@ -327,12 +301,12 @@ public class DiscoveryTool extends ZkClient implements Closeable {
             graph8.set("aliasColors", dash.newObject().put("Input", "#BF1B00").put("Output", "#508642"));
             dash.newTarget(graph8, "Output",
                     "SELECT sum(\"OneMinuteRate\") * -1 FROM \"BytesOutPerSec\" " +
-                    "WHERE \"name\" = 'stag-kafka-cluster' AND \"topic\" =~ /^$topic$/ " +
+                    "WHERE \"name\" = 'cluster' " +
                             "AND \"service\" = '" +String.format("broker-%s", broker.id)+"' AND $timeFilter " +
                     "GROUP BY time($interval) fill(null)");
             dash.newTarget(graph8, "Input",
                     "SELECT sum(\"OneMinuteRate\") FROM \"BytesInPerSec\" " +
-                    "WHERE \"name\" = 'stag-kafka-cluster' AND \"topic\" =~ /^$topic$/ " +
+                    "WHERE \"name\" = 'cluster' " +
                             "AND \"service\" = '"+String.format("broker-%s", broker.id)+"' AND $timeFilter " +
                     "GROUP BY time($interval) fill(null)");
         }
