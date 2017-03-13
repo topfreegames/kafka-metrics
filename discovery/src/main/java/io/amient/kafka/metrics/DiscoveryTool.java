@@ -289,10 +289,10 @@ public class DiscoveryTool extends ZkClient implements Closeable {
                     String.format("Kafka Broker ID %s @ %s", broker.id, broker.hostPort()), 250, false);
 
             //Purgatory graph
-            ObjectNode graph6 = dash.newGraph(brokerRow, "Num.delayed requests", 4, true);
+            ObjectNode graph6 = dash.newGraph(brokerRow, "Num delayed operations", 4, true);
             dash.newTarget(graph6, "$col",
                     "SELECT max(\"Value\"), median(\"Value\"), min(\"Value\") FROM \"NumDelayedOperations\" " +
-                    "WHERE \"name\" = 'cluster' AND \"service\" = 'broker-0' AND $timeFilter " +
+                    "WHERE \"name\" = 'cluster' AND \"service\" = '" +String.format("broker-%s", broker.id)+"'  AND $timeFilter " +
                     "GROUP BY time($interval) fill(null)");
 
             //Log Size graph
