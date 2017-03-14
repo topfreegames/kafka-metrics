@@ -9,33 +9,10 @@ TMP_FILE="tmp.json"
 DASHBOARD_DIR="$PWD/.data/grafana/dashboards/"
 DASHBOARD_PATH=$DASHBOARD_DIR"cluster.json"
 INTERVAL=25
-
-if [ $# -lt 8 ]; then
-  echo >&2 "$0: missing arguments"
-  exit 2
-fi
-
-for (( i=1; i<="$#"; i++))
-do
-  case ${!i} in
-    "--grafana")
-      ((i++))
-      GRAFANA_HOST=${!i}
-      ;;
-    "--influxdb")
-      ((i++))
-      INFLUXDB_HOST=${!i}
-      ;;
-    "--kafka")
-      ((i++))
-      KAFKA_HOST=${!i}
-      ;;
-    "--zookeeper")
-      ((i++))
-      ZOOKEEPER_HOST=${!i}
-      ;;
-  esac
-done
+GRAFANA_HOST="10.0.0.81:3000"
+INFLUXDB_HOST="10.0.0.234:8086"
+KAFKA_HOST="52.91.35.16:9092"
+ZOOKEEPER_HOST="54.145.157.84:2181"
 
 mkdir -p "$DASHBOARD_DIR"
 CONFIGS=$(./discovery/build/scripts/discovery --zookeeper "$ZOOKEEPER_HOST" --dashboard "cluster" --dashboard-path $DASHBOARD_DIR --interval "$INTERVAL" --influxdb "$INFLUXDB_HOST")
