@@ -10,7 +10,7 @@ DASHBOARD_DIR="$PWD/.data/grafana/dashboards/"
 DASHBOARD_PATH=$DASHBOARD_DIR"cluster.json"
 INTERVAL=25
 GRAFANA_HOST="http://admin:admin@a12c20ec4090011e79d540a75cb326ba-851496104.us-east-1.elb.amazonaws.com:3000"
-INFLUXDB_HOST="http://root:root@a4d18e798090811e79d540a75cb326ba-1979102563.us-east-1.elb.amazonaws.com:8086"
+INFLUXDB_HOST="http://root:root@100.68.195.141:8086"
 ZOOKEEPER_HOST="54.145.157.84:2181/kafka-rts"
 
 mkdir -p "$DASHBOARD_DIR"
