@@ -280,7 +280,7 @@ public class DiscoveryTool extends ZkClient implements Closeable {
             ObjectNode graph6 = dash.newGraph(brokerRow, "Num.delayed operations", 4, true);
             dash.newTarget(graph6, "$col",
                     "SELECT max(\"Value\"), median(\"Value\"), min(\"Value\") FROM \"NumDelayedOperations\" " +
-                    "WHERE \"service\" = 'broker-"+String.format("broker-%s", broker.id)+"' AND $timeFilter " +
+                    "WHERE \"service\" = '"+String.format("broker-%s", broker.id)+"' AND $timeFilter " +
                     "GROUP BY time($interval) fill(null)");
 
             //Log Size graph
