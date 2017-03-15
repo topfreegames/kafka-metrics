@@ -1,4 +1,4 @@
-FROM openjdk:7-jdk
+FROM openjdk:latest
 
 COPY core /metrics/core
 COPY discovery /metrics/discovery
@@ -14,5 +14,5 @@ COPY start.sh /metrics/
 COPY build.gradle /metrics/
 
 WORKDIR /metrics
-#RUN ./gradlew build
-ENTRYPOINT ["./start.sh"]
+RUN ./gradlew build
+CMD ["./start.sh"]

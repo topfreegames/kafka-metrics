@@ -187,7 +187,7 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT sum(\"OneMinuteRate\") FROM \"BytesInPerSec\" WHERE \"name\" = 'cluster' AND \"topic\" =~ /^$topic$/ AND $timeFilter GROUP BY time(25s), \"topic\" fill(null)",
+        "query" : "SELECT sum(\"OneMinuteRate\") FROM \"BytesInPerSec\" WHERE \"topic\" =~ /^$topic$/ AND $timeFilter GROUP BY time(25s), \"topic\" fill(null)",
         "alias" : "$tag_topic",
         "rawQuery" : true
       } ],
@@ -245,7 +245,7 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT sum(\"OneMinuteRate\") FROM \"FailedFetchRequestsPerSec\" WHERE \"name\" = 'cluster' AND \"topic\" =~ /^$topic$/ AND $timeFilter GROUP BY time(25s), \"topic\" fill(null)",
+        "query" : "SELECT sum(\"OneMinuteRate\") FROM \"FailedFetchRequestsPerSec\" WHERE \"topic\" =~ /^$topic$/ AND $timeFilter GROUP BY time(25s), \"topic\" fill(null)",
         "alias" : "$tag_topic",
         "rawQuery" : true
       } ],
@@ -303,7 +303,7 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT sum(\"OneMinuteRate\") FROM \"BytesOutPerSec\" WHERE \"name\" = 'cluster' AND \"topic\" =~ /^$topic$/ AND $timeFilter GROUP BY time(25s), \"topic\" fill(null)",
+        "query" : "SELECT sum(\"OneMinuteRate\") FROM \"BytesOutPerSec\" WHERE \"topic\" =~ /^$topic$/ AND $timeFilter GROUP BY time(25s), \"topic\" fill(null)",
         "alias" : "$tag_topic",
         "rawQuery" : true
       } ],
@@ -368,7 +368,7 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT sum(\"Value\") FROM \"ActiveControllerCount\" WHERE \"group\" = 'kafka.controller' AND \"name\" = 'cluster' AND $timeFilter GROUP BY time(25s)",
+        "query" : "SELECT sum(\"Value\") FROM \"ActiveControllerCount\" WHERE \"group\" = 'kafka.controller' AND $timeFilter GROUP BY time(25s)",
         "alias" : "",
         "rawQuery" : true
       } ],
@@ -401,7 +401,7 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT mean(\"Value\") FROM \"UnderReplicatedPartitions\" WHERE \"group\" = 'kafka.server' AND \"name\" = 'cluster' AND $timeFilter GROUP BY time(25s), \"service\"",
+        "query" : "SELECT mean(\"Value\") FROM \"UnderReplicatedPartitions\" WHERE \"group\" = 'kafka.server' AND $timeFilter GROUP BY time(25s), \"service\"",
         "alias" : "$tag_service",
         "rawQuery" : true
       } ],
@@ -459,7 +459,7 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT last(\"Value\") FROM \"PartitionCount\" WHERE \"group\" = 'kafka.server' AND \"name\" = 'cluster' AND $timeFilter GROUP BY time(25s), \"service\"",
+        "query" : "SELECT last(\"Value\") FROM \"PartitionCount\" WHERE \"group\" = 'kafka.server' AND $timeFilter GROUP BY time(25s), \"service\"",
         "alias" : "$tag_service",
         "rawQuery" : true
       } ],
@@ -484,8 +484,8 @@
         "desc" : false
       }
     }, {
-      "title" : "Log Flush Time (98th maximum)",
-      "span" : 2,
+      "title" : "Input / Sec",
+      "span" : 3,
       "id" : 7,
       "datasource" : "Kafka Metrics InfluxDB",
       "type" : "graph",
@@ -497,65 +497,7 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT max(\"98thPercentile\") as \"98thPercentile\" FROM \"LogFlushRateAndTimeMs\" WHERE \"group\" = 'kafka.log' AND \"name\" = 'cluster' AND $timeFilter GROUP BY time(1m), \"service\"",
-        "alias" : "$tag_service",
-        "rawQuery" : true
-      } ],
-      "nullPointMode" : "connected",
-      "x-axis" : true,
-      "y-axis" : true,
-      "y_formats" : [ "ms", "short" ],
-      "lines" : true,
-      "linewidth" : 1,
-      "steppedLine" : false,
-      "fill" : 0,
-      "points" : false,
-      "pointradius" : 2,
-      "bars" : false,
-      "percentage" : false,
-      "stack" : false,
-      "tooltip" : {
-        "value_type" : "cumulative",
-        "shared" : true
-      },
-      "seriesOverrides" : [ ],
-      "aliasColors" : { },
-      "legend" : {
-        "show" : false,
-        "values" : false,
-        "min" : false,
-        "max" : false,
-        "current" : false,
-        "total" : false,
-        "avg" : false
-      },
-      "grid" : {
-        "leftLogBase" : 1,
-        "leftMax" : null,
-        "rightMax" : null,
-        "leftMin" : null,
-        "rightMin" : null,
-        "rightLogBase" : 1,
-        "threshold1" : 6,
-        "threshold1Color" : "rgba(236, 118, 21, 0.21)",
-        "threshold2" : 12,
-        "threshold2Color" : "rgba(234, 112, 112, 0.22)"
-      }
-    }, {
-      "title" : "Input / Sec",
-      "span" : 2,
-      "id" : 8,
-      "datasource" : "Kafka Metrics InfluxDB",
-      "type" : "graph",
-      "renderer" : "flot",
-      "timeFrom" : null,
-      "timeShift" : null,
-      "editable" : true,
-      "error" : false,
-      "isNew" : true,
-      "targets" : [ {
-        "refId" : "A",
-        "query" : "SELECT sum(\"OneMinuteRate\") FROM \"BytesInPerSec\" WHERE \"group\" = 'kafka.server' AND \"topic\" =~ /^$topic$/ AND \"name\" = 'cluster' AND $timeFilter GROUP BY time(25s), \"service\"",
+        "query" : "SELECT sum(\"OneMinuteRate\") FROM \"BytesInPerSec\" WHERE \"group\" = 'kafka.server' AND \"topic\" =~ /^$topic$/AND $timeFilter GROUP BY time(25s), \"service\"",
         "alias" : "$tag_service",
         "rawQuery" : true
       } ],
@@ -601,8 +543,8 @@
       }
     }, {
       "title" : "Output / Sec",
-      "span" : 2,
-      "id" : 9,
+      "span" : 3,
+      "id" : 8,
       "datasource" : "Kafka Metrics InfluxDB",
       "type" : "graph",
       "renderer" : "flot",
@@ -613,7 +555,7 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT sum(\"OneMinuteRate\") FROM \"BytesOutPerSec\" WHERE \"group\" = 'kafka.server' AND \"topic\" =~ /^$topic$/ AND \"name\" = 'cluster' AND $timeFilter GROUP BY time(25s), \"service\"",
+        "query" : "SELECT sum(\"OneMinuteRate\") FROM \"BytesOutPerSec\" WHERE \"group\" = 'kafka.server' AND \"topic\" =~ /^$topic$/AND $timeFilter GROUP BY time(25s), \"service\"",
         "alias" : "$tag_service",
         "rawQuery" : true
       } ],
@@ -660,7 +602,7 @@
     }, {
       "title" : "Requests/Sec",
       "span" : 1,
-      "id" : 10,
+      "id" : 9,
       "datasource" : "Kafka Metrics InfluxDB",
       "type" : "singlestat",
       "renderer" : "flot",
@@ -671,7 +613,7 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT mean(\"OneMinuteRate\") FROM \"RequestsPerSec\" WHERE \"group\" = 'kafka.network' AND \"name\" = 'cluster' AND $timeFilter GROUP BY time(25s)",
+        "query" : "SELECT mean(\"OneMinuteRate\") FROM \"RequestsPerSec\" WHERE \"group\" = 'kafka.network' AND $timeFilter GROUP BY time(25s)",
         "alias" : "",
         "rawQuery" : true
       } ],
@@ -698,9 +640,9 @@
     "editable" : true,
     "collapse" : true,
     "panels" : [ {
-      "title" : "Num.delayed requests",
+      "title" : "Num.delayed operations",
       "span" : 4,
-      "id" : 11,
+      "id" : 10,
       "datasource" : "Kafka Metrics InfluxDB",
       "type" : "graph",
       "renderer" : "flot",
@@ -711,7 +653,7 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT max(\"Value\"), median(\"Value\"), min(\"Value\") FROM \"NumDelayedOperations\" WHERE \"name\" = 'cluster' AND \"service\" = 'broker-0' AND $timeFilter GROUP BY time($interval) fill(null)",
+        "query" : "SELECT max(\"Value\"), median(\"Value\"), min(\"Value\") FROM \"NumDelayedOperations\" WHERE \"service\" = 'broker-1004' AND $timeFilter GROUP BY time($interval) fill(null)",
         "alias" : "$col",
         "rawQuery" : true
       } ],
@@ -758,7 +700,7 @@
     }, {
       "title" : "Log Size",
       "span" : 4,
-      "id" : 12,
+      "id" : 11,
       "datasource" : "Kafka Metrics InfluxDB",
       "type" : "graph",
       "renderer" : "flot",
@@ -769,7 +711,7 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT \"Value\" FROM \"Size\" WHERE \"group\" = 'kafka.log' AND \"service\" = 'broker-1004'AND \"name\" = 'cluster' AND $timeFilter",
+        "query" : "SELECT \"Value\" FROM \"Size\" WHERE \"group\" = 'kafka.log' AND \"service\" = 'broker-1004'AND $timeFilter",
         "alias" : "$col",
         "rawQuery" : true
       } ],
@@ -816,7 +758,7 @@
     }, {
       "title" : "Throughput",
       "span" : 4,
-      "id" : 13,
+      "id" : 12,
       "datasource" : "Kafka Metrics InfluxDB",
       "type" : "graph",
       "renderer" : "flot",
@@ -827,12 +769,12 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT sum(\"OneMinuteRate\") * -1 FROM \"BytesOutPerSec\" WHERE \"name\" = 'cluster' AND \"service\" = 'broker-1004' AND $timeFilter GROUP BY time($interval) fill(null)",
+        "query" : "SELECT sum(\"OneMinuteRate\") * -1 FROM \"BytesOutPerSec\" WHERE \"service\" = 'broker-1004' AND $timeFilter GROUP BY time($interval) fill(null)",
         "alias" : "Output",
         "rawQuery" : true
       }, {
         "refId" : "B",
-        "query" : "SELECT sum(\"OneMinuteRate\") FROM \"BytesInPerSec\" WHERE \"name\" = 'cluster' AND \"service\" = 'broker-1004' AND $timeFilter GROUP BY time($interval) fill(null)",
+        "query" : "SELECT sum(\"OneMinuteRate\") FROM \"BytesInPerSec\" WHERE \"service\" = 'broker-1004' AND $timeFilter GROUP BY time($interval) fill(null)",
         "alias" : "Input",
         "rawQuery" : true
       } ],
@@ -887,9 +829,9 @@
     "editable" : true,
     "collapse" : true,
     "panels" : [ {
-      "title" : "Num.delayed requests",
+      "title" : "Num.delayed operations",
       "span" : 4,
-      "id" : 14,
+      "id" : 13,
       "datasource" : "Kafka Metrics InfluxDB",
       "type" : "graph",
       "renderer" : "flot",
@@ -900,7 +842,7 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT max(\"Value\"), median(\"Value\"), min(\"Value\") FROM \"NumDelayedOperations\" WHERE \"name\" = 'cluster' AND \"service\" = 'broker-0' AND $timeFilter GROUP BY time($interval) fill(null)",
+        "query" : "SELECT max(\"Value\"), median(\"Value\"), min(\"Value\") FROM \"NumDelayedOperations\" WHERE \"service\" = 'broker-1002' AND $timeFilter GROUP BY time($interval) fill(null)",
         "alias" : "$col",
         "rawQuery" : true
       } ],
@@ -947,7 +889,7 @@
     }, {
       "title" : "Log Size",
       "span" : 4,
-      "id" : 15,
+      "id" : 14,
       "datasource" : "Kafka Metrics InfluxDB",
       "type" : "graph",
       "renderer" : "flot",
@@ -958,7 +900,7 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT \"Value\" FROM \"Size\" WHERE \"group\" = 'kafka.log' AND \"service\" = 'broker-1002'AND \"name\" = 'cluster' AND $timeFilter",
+        "query" : "SELECT \"Value\" FROM \"Size\" WHERE \"group\" = 'kafka.log' AND \"service\" = 'broker-1002'AND $timeFilter",
         "alias" : "$col",
         "rawQuery" : true
       } ],
@@ -1005,7 +947,7 @@
     }, {
       "title" : "Throughput",
       "span" : 4,
-      "id" : 16,
+      "id" : 15,
       "datasource" : "Kafka Metrics InfluxDB",
       "type" : "graph",
       "renderer" : "flot",
@@ -1016,12 +958,12 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT sum(\"OneMinuteRate\") * -1 FROM \"BytesOutPerSec\" WHERE \"name\" = 'cluster' AND \"service\" = 'broker-1002' AND $timeFilter GROUP BY time($interval) fill(null)",
+        "query" : "SELECT sum(\"OneMinuteRate\") * -1 FROM \"BytesOutPerSec\" WHERE \"service\" = 'broker-1002' AND $timeFilter GROUP BY time($interval) fill(null)",
         "alias" : "Output",
         "rawQuery" : true
       }, {
         "refId" : "B",
-        "query" : "SELECT sum(\"OneMinuteRate\") FROM \"BytesInPerSec\" WHERE \"name\" = 'cluster' AND \"service\" = 'broker-1002' AND $timeFilter GROUP BY time($interval) fill(null)",
+        "query" : "SELECT sum(\"OneMinuteRate\") FROM \"BytesInPerSec\" WHERE \"service\" = 'broker-1002' AND $timeFilter GROUP BY time($interval) fill(null)",
         "alias" : "Input",
         "rawQuery" : true
       } ],
@@ -1076,9 +1018,9 @@
     "editable" : true,
     "collapse" : true,
     "panels" : [ {
-      "title" : "Num.delayed requests",
+      "title" : "Num.delayed operations",
       "span" : 4,
-      "id" : 17,
+      "id" : 16,
       "datasource" : "Kafka Metrics InfluxDB",
       "type" : "graph",
       "renderer" : "flot",
@@ -1089,7 +1031,7 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT max(\"Value\"), median(\"Value\"), min(\"Value\") FROM \"NumDelayedOperations\" WHERE \"name\" = 'cluster' AND \"service\" = 'broker-0' AND $timeFilter GROUP BY time($interval) fill(null)",
+        "query" : "SELECT max(\"Value\"), median(\"Value\"), min(\"Value\") FROM \"NumDelayedOperations\" WHERE \"service\" = 'broker-1006' AND $timeFilter GROUP BY time($interval) fill(null)",
         "alias" : "$col",
         "rawQuery" : true
       } ],
@@ -1136,7 +1078,7 @@
     }, {
       "title" : "Log Size",
       "span" : 4,
-      "id" : 18,
+      "id" : 17,
       "datasource" : "Kafka Metrics InfluxDB",
       "type" : "graph",
       "renderer" : "flot",
@@ -1147,7 +1089,7 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT \"Value\" FROM \"Size\" WHERE \"group\" = 'kafka.log' AND \"service\" = 'broker-1006'AND \"name\" = 'cluster' AND $timeFilter",
+        "query" : "SELECT \"Value\" FROM \"Size\" WHERE \"group\" = 'kafka.log' AND \"service\" = 'broker-1006'AND $timeFilter",
         "alias" : "$col",
         "rawQuery" : true
       } ],
@@ -1194,7 +1136,7 @@
     }, {
       "title" : "Throughput",
       "span" : 4,
-      "id" : 19,
+      "id" : 18,
       "datasource" : "Kafka Metrics InfluxDB",
       "type" : "graph",
       "renderer" : "flot",
@@ -1205,12 +1147,12 @@
       "isNew" : true,
       "targets" : [ {
         "refId" : "A",
-        "query" : "SELECT sum(\"OneMinuteRate\") * -1 FROM \"BytesOutPerSec\" WHERE \"name\" = 'cluster' AND \"service\" = 'broker-1006' AND $timeFilter GROUP BY time($interval) fill(null)",
+        "query" : "SELECT sum(\"OneMinuteRate\") * -1 FROM \"BytesOutPerSec\" WHERE \"service\" = 'broker-1006' AND $timeFilter GROUP BY time($interval) fill(null)",
         "alias" : "Output",
         "rawQuery" : true
       }, {
         "refId" : "B",
-        "query" : "SELECT sum(\"OneMinuteRate\") FROM \"BytesInPerSec\" WHERE \"name\" = 'cluster' AND \"service\" = 'broker-1006' AND $timeFilter GROUP BY time($interval) fill(null)",
+        "query" : "SELECT sum(\"OneMinuteRate\") FROM \"BytesInPerSec\" WHERE \"service\" = 'broker-1006' AND $timeFilter GROUP BY time($interval) fill(null)",
         "alias" : "Input",
         "rawQuery" : true
       } ],
