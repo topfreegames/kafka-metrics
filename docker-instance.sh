@@ -25,18 +25,9 @@ wait_for_endpoint() {
 
 cd $DIR
 
-docker-compose up &
+GRAFANA_URL="http://admin:admin@192.168.64.2:30089"
 
-terminate() {
-    cd $DIR
-    docker-compose down
-}
-
-trap terminate EXIT INT
-
-GRAFANA_URL="http://admin:admin@localhost:3000"
-
-INFLUXDB_URL="http://localhost:8086"
+INFLUXDB_URL="http://192.168.64.2:31942"
 
 wait_for_endpoint "$INFLUXDB_URL/ping" 204 30
 if [ $? == 1 ]; then
@@ -56,9 +47,3 @@ if [ $? == 1 ]; then
 else
     exit 1;
 fi
-
-
-tail -f "$DIR/.data/grafana/logs/grafana.log"
-
-
-
