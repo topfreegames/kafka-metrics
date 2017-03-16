@@ -10,7 +10,6 @@ CLUSTER_CONFIG="cluster.properties"
 DASHBOARD_DIR="$PWD/.data/grafana/dashboards"
 DASHBOARD_PATH="$DASHBOARD_DIR/cluster.json"
 INTERVAL=25
-ZOOKEEPER_HOST="54.145.157.84:2181/kafka-rts"
 
 ## Create metrics database on influx
 curl -XPOST "$INFLUXDB_HOST/query" --data-urlencode 'q=CREATE DATABASE "metrics"'
