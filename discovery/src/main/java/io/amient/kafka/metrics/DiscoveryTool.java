@@ -202,21 +202,21 @@ public class DiscoveryTool extends ZkClient implements Closeable {
         graphT1.replace("y_formats", dash.newArray("bytes", "short"));
         graphT1.set("tooltip", dash.newObject().put("value_type", "individual").put("shared", false));
         dash.newTarget(graphT1, "$tag_topic", "SELECT sum(\"OneMinuteRate\") FROM \"BytesInPerSec\" " +
-                "WHERE \"name\" = '" + name + "' AND $timeFilter " +
+                "WHERE \"topic\" =~ /^$topic$/ AND $timeFilter " +
                 "GROUP BY time(" + interval_s + "s), \"topic\" fill(null)");
 
         ObjectNode graphT2 = dash.newGraph(topicsRow, "Failed Fetch Requests / Sec", 2, false)
                 .put("fill", 4).put("stack", false);
         graphT2.set("tooltip", dash.newObject().put("value_type", "individual").put("shared", false));
         dash.newTarget(graphT2, "$tag_topic", "SELECT sum(\"OneMinuteRate\") FROM \"FailedFetchRequestsPerSec\" " +
-                "WHERE \"name\" = '" + name + "' AND $timeFilter " +
+                "WHERE \"topic\" =~ /^$topic$/ AND $timeFilter " +
                 "GROUP BY time(" + interval_s + "s), \"topic\" fill(null)");
 
         ObjectNode graphT3 = dash.newGraph(topicsRow, "Output / Sec", 5, false).put("fill", 2).put("stack", false);
         graphT3.replace("y_formats", dash.newArray("bytes", "short"));
         graphT3.set("tooltip", dash.newObject().put("value_type", "individual").put("shared", false));
         dash.newTarget(graphT3, "$tag_topic", "SELECT sum(\"OneMinuteRate\") FROM \"BytesOutPerSec\" " +
-                "WHERE \"name\" = '" + name + "' AND $timeFilter " +
+                "WHERE \"topic\" =~ /^$topic$/ AND $timeFilter " +
                 "GROUP BY time(" + interval_s + "s), \"topic\" fill(null)");
 
         ///////////// ROW 2 - AGGREGATED CLUSTER METRICS
@@ -224,56 +224,44 @@ public class DiscoveryTool extends ZkClient implements Closeable {
 
         dash.newStat(clusterRow, "Controllers", 1,
                 "SELECT sum(\"Value\") FROM \"ActiveControllerCount\" " +
-                        "WHERE \"group\" = 'kafka.controller' AND \"name\" = '" + name + "' AND $timeFilter " +
+                        "WHERE \"group\" = 'kafka.controller' AND $timeFilter " +
                         "GROUP BY time(" + interval_s + "s)")
             .put("valueFontSize", "150%");
 
         ObjectNode graph1 = dash.newGraph(clusterRow, "Under-Replicated Partitions", 2, false).put("bars", true);
         dash.newTarget(graph1, "$tag_service", "SELECT mean(\"Value\") FROM \"UnderReplicatedPartitions\" " +
-                "WHERE \"group\" = 'kafka.server' AND \"name\" = '" + name + "' AND $timeFilter " +
+                "WHERE \"group\" = 'kafka.server' AND $timeFilter " +
                 "GROUP BY time(" + interval_s + "s), \"service\"");
 
         dash.newTable(clusterRow, "Partition Count", 2, "avg", "$tag_service",
                 "SELECT last(\"Value\") FROM \"PartitionCount\" " +
-                "WHERE \"group\" = 'kafka.server' AND \"name\" = '" + name + "' AND $timeFilter " +
+                "WHERE \"group\" = 'kafka.server' AND $timeFilter " +
                 "GROUP BY time(" + interval_s + "s), \"service\"")
             .put("transform", "timeseries_aggregations")
             .put("showHeader", false);
 
-        //Total Maximum Log Flush Time
-        ObjectNode graph5 = dash.newGraph(clusterRow, "Log Flush Time (98th maximum)", 2, false)
-                .put("linewidth",1).put("points", false).put("fill",0);
-        graph5.replace("y_formats", dash.newArray("ms", "short"));
-        dash.get(graph5, "grid")
-                .put("threshold1", 6).put("threshold1Color", "rgba(236, 118, 21, 0.21)")
-                .put("threshold2", 12).put("threshold2Color", "rgba(234, 112, 112, 0.22)");
-        dash.newTarget(graph5, "$tag_service", "SELECT max(\"98thPercentile\") as \"98thPercentile\" " +
-                "FROM \"LogFlushRateAndTimeMs\" " +
-                "WHERE \"group\" = 'kafka.log' AND \"name\" = '" + name + "' AND $timeFilter " +
-                "GROUP BY time(1m), \"service\"");
-
-        ObjectNode graph2 = dash.newGraph(clusterRow, "Input / Sec", 2, false)
+        ObjectNode graph2 = dash.newGraph(clusterRow, "Input / Sec", 3, false)
                 .put("fill", 2).put("stack", true);
         graph2.replace("y_formats", dash.newArray("bytes", "short"));
         graph2.replace("tooltip", dash.newObject().put("value_type", "individual").put("shared", true));
         dash.get(graph2, "grid").put("leftMin", 0);
         dash.newTarget(graph2, "$tag_service", "SELECT sum(\"OneMinuteRate\") FROM \"BytesInPerSec\" " +
-                "WHERE \"group\" = 'kafka.server' AND \"name\" = '" + name + "' " +
+                "WHERE \"group\" = 'kafka.server' AND \"topic\" =~ /^$topic$/" +
                 "AND $timeFilter " +
                 "GROUP BY time(" + interval_s + "s), \"service\"");
 
-        ObjectNode graph3 = dash.newGraph(clusterRow, "Output / Sec", 2, false).put("fill", 2).put("stack", true);
+        ObjectNode graph3 = dash.newGraph(clusterRow, "Output / Sec", 3, false).put("fill", 2).put("stack", true);
         graph3.replace("y_formats", dash.newArray("bytes", "short"));
         graph3.replace("tooltip", dash.newObject().put("value_type", "individual").put("shared", true));
         dash.get(graph3, "grid").put("leftMin", 0);
         dash.newTarget(graph3, "$tag_service", "SELECT sum(\"OneMinuteRate\") FROM \"BytesOutPerSec\" " +
-                "WHERE \"group\" = 'kafka.server' AND \"name\" = '" + name + "' " +
+                "WHERE \"group\" = 'kafka.server' AND \"topic\" =~ /^$topic$/" +
                 "AND $timeFilter " +
                 "GROUP BY time(" + interval_s + "s), \"service\"");
 
         dash.newStat(clusterRow, "Requests/Sec", 1,
                 "SELECT mean(\"OneMinuteRate\") FROM \"RequestsPerSec\" " +
-                        "WHERE \"group\" = 'kafka.network' AND \"name\" = '" + name + "' AND $timeFilter " +
+                        "WHERE \"group\" = 'kafka.network' AND $timeFilter " +
                         "GROUP BY time(" + interval_s + "s)")
                 .put("decimals", 1)
                 .put("valueName", "avg")
@@ -289,10 +277,10 @@ public class DiscoveryTool extends ZkClient implements Closeable {
                     String.format("Kafka Broker ID %s @ %s", broker.id, broker.hostPort()), 250, false);
 
             //Purgatory graph
-            ObjectNode graph6 = dash.newGraph(brokerRow, "Num delayed operations", 4, true);
+            ObjectNode graph6 = dash.newGraph(brokerRow, "Num.delayed operations", 4, true);
             dash.newTarget(graph6, "$col",
                     "SELECT max(\"Value\"), median(\"Value\"), min(\"Value\") FROM \"NumDelayedOperations\" " +
-                    "WHERE \"name\" = 'cluster' AND \"service\" = '" +String.format("broker-%s", broker.id)+"'  AND $timeFilter " +
+                    "WHERE \"service\" = '"+String.format("broker-%s", broker.id)+"' AND $timeFilter " +
                     "GROUP BY time($interval) fill(null)");
 
             //Log Size graph
@@ -304,7 +292,7 @@ public class DiscoveryTool extends ZkClient implements Closeable {
             dash.newTarget(graph7, "$col", "SELECT \"Value\" " +
                     "FROM \"Size\" " +
                     "WHERE \"group\" = 'kafka.log' AND \"service\" = '" +String.format("broker-%s", broker.id)+"'" +
-                    "AND \"name\" = '" + name + "' AND $timeFilter");
+                    "AND $timeFilter");
 
             //Combined Throughput Graph
             ObjectNode graph8 = dash.newGraph(brokerRow, "Throughput", 4, true)
@@ -313,13 +301,11 @@ public class DiscoveryTool extends ZkClient implements Closeable {
             graph8.set("aliasColors", dash.newObject().put("Input", "#BF1B00").put("Output", "#508642"));
             dash.newTarget(graph8, "Output",
                     "SELECT sum(\"OneMinuteRate\") * -1 FROM \"BytesOutPerSec\" " +
-                    "WHERE \"name\" = 'cluster' " +
-                            "AND \"service\" = '" +String.format("broker-%s", broker.id)+"' AND $timeFilter " +
+                    "WHERE \"service\" = '" +String.format("broker-%s", broker.id)+"' AND $timeFilter " +
                     "GROUP BY time($interval) fill(null)");
             dash.newTarget(graph8, "Input",
                     "SELECT sum(\"OneMinuteRate\") FROM \"BytesInPerSec\" " +
-                    "WHERE \"name\" = 'cluster' " +
-                            "AND \"service\" = '"+String.format("broker-%s", broker.id)+"' AND $timeFilter " +
+                    "WHERE \"service\" = '"+String.format("broker-%s", broker.id)+"' AND $timeFilter " +
                     "GROUP BY time($interval) fill(null)");
         }
 
