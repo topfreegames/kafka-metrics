@@ -22,9 +22,9 @@ COPY metrics-reporter/build.gradle /metrics/metrics-reporter/
 
 COPY gradlew /metrics/
 COPY settings.gradle /metrics/
-COPY start.sh /metrics/
+COPY start-metrics.sh /metrics/
 COPY build.gradle /metrics/
 
 WORKDIR /metrics
 RUN ./gradlew build
-CMD ["./start.sh"]
+CMD ["./start-metrics.sh"]
